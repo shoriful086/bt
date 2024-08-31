@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "appUsers" ALTER COLUMN "balance" DROP DEFAULT,
+ALTER COLUMN "balance" SET DATA TYPE TEXT,
+ALTER COLUMN "depositBalance" DROP DEFAULT,
+ALTER COLUMN "depositBalance" SET DATA TYPE TEXT;

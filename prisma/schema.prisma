@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(uuid())
+  name        String
+  email       String     @unique
+  phoneNumber String     @unique
+  password    String
+  role        UserRole
+  status      UserStatus
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  appUser AppUser?
+  admin   Admin?
+
+  @@map("users")
+}
+
+model Admin {
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
+
+  phoneNumber String @unique
+
+  user User @relation(fields: [phoneNumber], references: [phoneNumber])
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model AppUser {
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
+
+  phoneNumber String @unique
+  user        User   @relation(fields: [phoneNumber], references: [phoneNumber])
+
+  balance        Float          @default(0)
+  depositBalance Float          @default(0)
+  referIncome    Float          @default(0)
+  earnedForAd    Float          @default(0)
+  isDeleted      Boolean        @default(false)
+  referrelCode   String
+  refererBy      String?
+  referLink      String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  refer          Refer[]
+  deposit        Deposit[]
+  withdraw       Withdraw[]
+  buyPackage     BuyPackage[]
+  completeTask   CompleteTask[]
+
+  @@map("appUsers")
+}
+
+model Refer {
+  id                  String      @id @default(uuid())
+  referUsedUserNumber String
+  referrer            AppUser     @relation(fields: [referUsedUserNumber], references: [phoneNumber])
+  referCode           String      @default("1234")
+  status              ReferStatus
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt()
+
+  @@map("refers")
+}
+
+model SignUpBonus {
+  id          String @id @default(uuid())
+  bonusAmount Float  @default(0)
+
+  @@map("signup_bonuses")
+}
+
+model PaymentMethod {
+  id         String   @id @default(uuid())
+  name       String
+  number     String
+  icon       String
+  minPayment String
+  maxPayment String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("payment_methods")
+}
+
+model WithdrawMethod {
+  id         String   @id @default(uuid())
+  name       String
+  icon       String
+  minPayment String
+  maxPayment String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("withdraw_methods")
+}
+
+model Deposit {
+  id            String        @id @default(uuid())
+  phoneNumber   String
+  number        AppUser       @relation(fields: [phoneNumber], references: [phoneNumber])
+  paymentNumber String
+  paymentMethod String
+  amount        Float
+  trxId         String
+  depositStatus DepositStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("deposits")
+}
+
+model DepositBonus {
+  id           String @id @default(uuid())
+  depositBonus Float  @default(0)
+
+  @@map("deposit_bonuses")
+}
+
+model Withdraw {
+  id                    String         @id @default(uuid())
+  phoneNumber           String
+  number                AppUser        @relation(fields: [phoneNumber], references: [phoneNumber])
+  paymentReceivedNumber String
+  paymentMethod         String
+  amount                Float
+  withdrawStatus        WithdrawStatus @default(PENDING)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@map("withdraws")
+}
+
+model ReferCommission {
+  id              String @id @default(uuid())
+  commissionBonus Float  @default(0)
+
+  @@map("refer_commissions")
+}
+
+model Package {
+  id           String         @id @default(uuid())
+  name         String
+  price        Float
+  dailyAds     Float
+  validity     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt()
+  buyPackage   BuyPackage[]
+  completeTask CompleteTask[]
+
+  @@map("packages")
+}
+
+model BuyPackage {
+  userNumber String
+  user       AppUser  @relation(fields: [userNumber], references: [phoneNumber])
+  pakcageId  String
+  package    Package  @relation(fields: [pakcageId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+
+  @@id([userNumber, pakcageId])
+  @@map("buy_packages")
+}
+
+model CompleteTask {
+  id         String  @id @default(uuid())
+  userNumber String
+  user       AppUser @relation(fields: [userNumber], references: [phoneNumber])
+
+  packageId String
+  package   Package @relation(fields: [packageId], references: [id])
+
+  packageName String
+  earned      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+
+  @@map("complete_tasks")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  APP_USER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum ReferStatus {
+  PENDING
+  SUCCESS
+}
+
+enum DepositStatus {
+  PENDING
+  SUCCESS
+  REJECTED
+}
+
+enum WithdrawStatus {
+  PENDING
+  PAID
+}

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "appUsers" ADD COLUMN     "earnedForAd" DOUBLE PRECISION NOT NULL DEFAULT 0;
