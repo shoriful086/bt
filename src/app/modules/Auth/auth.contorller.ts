@@ -30,7 +30,10 @@ const loginAdmin = catchAsync(async (req: Request, res: Response) => {
 const changePassword = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const user = req.user;
-    const result = await authService.changePassword(user, req.body);
+    const result = await authService.changePassword(
+      user as IAuthUser,
+      req.body
+    );
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
