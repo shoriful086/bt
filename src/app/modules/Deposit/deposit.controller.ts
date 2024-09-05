@@ -65,7 +65,19 @@ const getSuccessDeposit = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Get success deposit fetched",
+      message: "Get success deposit data fetched",
+      data: result,
+    });
+  }
+);
+const getRejectedDeposit = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await depositService.getRejectedDeposit(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Get rejected deposit data fetched",
       data: result,
     });
   }
@@ -110,6 +122,7 @@ export const depositController = {
   getAllDepositData,
   getPendingDeposit,
   getSuccessDeposit,
+  getRejectedDeposit,
   updateDepositStatus,
   depositBonus,
 };

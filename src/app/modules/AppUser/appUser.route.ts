@@ -10,6 +10,11 @@ router.get(
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   appUserController.getAllUserFromDB
 );
+router.get(
+  "/blocked",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  appUserController.getBlockedFromDB
+);
 
 router.get(
   "/:id",
@@ -17,18 +22,24 @@ router.get(
   appUserController.getUserById
 );
 
-router.delete(
+router.patch(
   "/:id",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  appUserController.deleteUser
+  appUserController.userUnblocked
 );
 
 router.patch(
-  "/:id",
+  "/update/:userId",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = appUserValidation.updateUserValidation.parse(req.body);
     return appUserController.updateUser(req, res, next);
   }
+);
+
+router.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  appUserController.blockedUser
 );
 export const AppUserRoutes = router;

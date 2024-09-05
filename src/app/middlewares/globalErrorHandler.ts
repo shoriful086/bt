@@ -26,14 +26,13 @@ const globalErrorHandler = (
     }
   }
 
-  // Log the error
   logger.error({
     message: err.message,
     stack: err.stack,
     meta: err.meta, // Include metadata if available
   });
 
-  res.status(statusCode).json({
+  res.json({
     success,
     message,
     error,

@@ -25,4 +25,10 @@ router.post(
     return withdrawMethodController.insertInToDB(req, res, next);
   }
 );
+
+router.delete(
+  "/:withdrawId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  withdrawMethodController.deleteWithdrawMethod
+);
 export const WithdrawMethodRoutes = router;

@@ -16,13 +16,13 @@ const createMethod = async (user: IAuthUser, file: IFileType, payload: any) => {
     },
   });
 
+  if (methodData) {
+    throw new Error(`${payload?.name} already exist`);
+  }
+
   if (file) {
     const methodIcon = await fileUploader.uploadCloudinary(file);
     payload.icon = methodIcon?.secure_url;
-  }
-
-  if (methodData) {
-    throw new Error(`${payload.name} already exist`);
   }
 
   const result = await prisma.paymentMethod.create({
@@ -38,7 +38,33 @@ const getAllPaymentMethod = async () => {
   }
   return paymentMethodData;
 };
+
+const deletePaymentMethod = async (
+  user: IAuthUser,
+  paymentMethodId: string
+) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  const paymentMethodData = await prisma.paymentMethod.findUnique({
+    where: {
+      id: paymentMethodId,
+    },
+  });
+
+  if (!paymentMethodData) {
+    throw new Error("Payment method data not found");
+  }
+
+  const result = await prisma.paymentMethod.delete({
+    where: {
+      id: paymentMethodId,
+    },
+  });
+
+  return result;
+};
+
 export const paymentMethodService = {
   createMethod,
   getAllPaymentMethod,
+  deletePaymentMethod,
 };

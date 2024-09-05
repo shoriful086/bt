@@ -37,6 +37,9 @@ const getAllPackage = async (user: IAuthUser) => {
       status: UserStatus.ACTIVE,
     },
   });
+  if (!userData) {
+    throw new Error("User not found");
+  }
 
   if (user.role === UserRole.APP_USER) {
     const userData = await prisma.appUser.findUnique({
@@ -51,7 +54,11 @@ const getAllPackage = async (user: IAuthUser) => {
     }
   }
 
-  const result = await prisma.package.findMany();
+  const result = await prisma.package.findMany({
+    orderBy: {
+      price: "asc",
+    },
+  });
   return result;
 };
 
@@ -77,8 +84,29 @@ const deletePackage = async (user: IAuthUser, packageId: string) => {
   return result;
 };
 
+const updatePackage = async (
+  user: IAuthUser,
+  packageId: string,
+  payload: any
+) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  const packageData = await prisma.package.findUniqueOrThrow({
+    where: {
+      id: packageId,
+    },
+  });
+  const result = await prisma.package.update({
+    where: {
+      id: packageData?.id,
+    },
+    data: payload,
+  });
+  return result;
+};
+
 export const packageService = {
   createPackage,
   getAllPackage,
   deletePackage,
+  updatePackage,
 };

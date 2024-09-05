@@ -27,4 +27,13 @@ router.delete(
   packageController.deletePackage
 );
 
+router.patch(
+  "/:packageId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = packageValidation.updatePackage.parse(req.body);
+    return packageController.updatePackage(req, res, next);
+  }
+);
+
 export const PackageRoutes = router;

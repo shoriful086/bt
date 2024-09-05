@@ -65,7 +65,11 @@ const insertInToDB = async (user: IAuthUser, payload: any) => {
 
 const getAllCompleteTask = async (user: IAuthUser) => {
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
-  const result = await prisma.completeTask.findMany();
+  const result = await prisma.completeTask.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   if (!result) {
     throw new Error("No complete task history");
   }

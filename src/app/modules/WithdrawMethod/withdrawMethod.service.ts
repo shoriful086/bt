@@ -39,7 +39,29 @@ const getAllWithdrawMethod = async () => {
   return paymentMethodData;
 };
 
+const deleteWithdrawMethod = async (user: IAuthUser, withdrawId: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  const withdrawMethodData = await prisma.withdrawMethod.findUnique({
+    where: {
+      id: withdrawId,
+    },
+  });
+
+  if (!withdrawMethodData) {
+    throw new Error("Payment method data not found");
+  }
+
+  const result = await prisma.withdrawMethod.delete({
+    where: {
+      id: withdrawId,
+    },
+  });
+
+  return result;
+};
+
 export const withdrawMethodService = {
   insertInToDB,
   getAllWithdrawMethod,
+  deleteWithdrawMethod,
 };

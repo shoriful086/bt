@@ -4,6 +4,8 @@ export type IUpdateUserData = {
   phoneNumber?: string;
   balance?: number;
   depositBalance?: number;
+  referIncome?: number;
+  earnedForAd?: number;
 };
 
 export type IFilterParams = {

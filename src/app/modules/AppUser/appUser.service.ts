@@ -25,43 +25,13 @@ const getUserById = async (user: IAuthUser, id: string) => {
       refer: true,
       deposit: true,
       withdraw: true,
-      buyPackage: true,
+      buyPackage: {
+        include: {
+          package: true,
+        },
+      },
+      completeTask: true,
     },
-  });
-
-  return result;
-};
-
-const deleteUser = async (user: IAuthUser, id: string) => {
-  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
-
-  const userData = await prisma.appUser.findUniqueOrThrow({
-    where: {
-      id,
-      isDeleted: false,
-    },
-  });
-
-  const result = await prisma.$transaction(async (tx) => {
-    const updateUser = await tx.appUser.update({
-      where: {
-        email: userData.email,
-      },
-      data: {
-        isDeleted: true,
-      },
-    });
-
-    await tx.user.update({
-      where: {
-        email: updateUser.email,
-      },
-      data: {
-        status: UserStatus.DELETED,
-      },
-    });
-
-    return updateUser;
   });
 
   return result;
@@ -126,11 +96,23 @@ const getAllUserFromDB = async (
   };
 };
 
-const updateUser = async (
-  user: IAuthUser,
-  id: string,
-  payload: IUpdateUserData
-) => {
+const getBlockedFromDB = async (user: IAuthUser) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const result = await prisma.appUser.findMany({
+    where: {
+      isDeleted: true,
+    },
+  });
+
+  if (!result) {
+    throw new Error("No blocked user found");
+  }
+
+  return result;
+};
+
+const blockedUser = async (user: IAuthUser, id: string) => {
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
 
   const userData = await prisma.appUser.findUniqueOrThrow({
@@ -139,6 +121,82 @@ const updateUser = async (
       isDeleted: false,
     },
   });
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updateUser = await tx.appUser.update({
+      where: {
+        email: userData.email,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    await tx.user.update({
+      where: {
+        email: updateUser.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+
+    return updateUser;
+  });
+
+  return result;
+};
+
+const userUnblocked = async (user: IAuthUser, id: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const userData = await prisma.appUser.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: true,
+    },
+  });
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updateUser = await tx.appUser.update({
+      where: {
+        email: userData.email,
+      },
+      data: {
+        isDeleted: false,
+      },
+    });
+
+    await tx.user.update({
+      where: {
+        email: updateUser.email,
+      },
+      data: {
+        status: UserStatus.ACTIVE,
+      },
+    });
+
+    return updateUser;
+  });
+
+  return result;
+};
+
+const updateUser = async (
+  user: IAuthUser,
+  userId: string,
+  payload: IUpdateUserData
+) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const userData = await prisma.appUser.findUniqueOrThrow({
+    where: {
+      id: userId,
+      isDeleted: false,
+    },
+  });
+
+  console.log(userData);
 
   const result = await prisma.$transaction(async (tx) => {
     if (payload.name || (payload.email && payload.phoneNumber)) {
@@ -171,9 +229,12 @@ const updateUser = async (
 
   return result;
 };
+
 export const appUserService = {
   getUserById,
-  deleteUser,
+  blockedUser,
   getAllUserFromDB,
+  getBlockedFromDB,
   updateUser,
+  userUnblocked,
 };

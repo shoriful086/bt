@@ -204,7 +204,11 @@ const getMyProfile = async (user: IAuthUser) => {
       include: {
         refer: true,
         deposit: true,
-        withdraw: true,
+        withdraw: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
         buyPackage: {
           include: {
             package: true,

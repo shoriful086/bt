@@ -4,7 +4,7 @@ import { prisma } from "../../../shared/prisma";
 import bcrypt from "bcrypt";
 import config from "../../../config";
 import { IAuthUser } from "../../interfaces/auth";
-import { UserStatus } from "@prisma/client";
+import { UserRole, UserStatus } from "@prisma/client";
 import ApiError from "../../erros/apiError";
 import httpStatus from "http-status";
 
@@ -58,6 +58,7 @@ const loginAdmin = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUnique({
     where: {
       email: payload.email,
+      role: UserRole.SUPER_ADMIN || UserRole.ADMIN,
       status: UserStatus.ACTIVE,
     },
   });

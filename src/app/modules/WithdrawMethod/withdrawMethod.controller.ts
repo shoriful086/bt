@@ -18,7 +18,7 @@ const insertInToDB = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Withdraw method created successfully",
+      message: ` Withdraw method ${result.name} created`,
       data: result,
     });
   }
@@ -34,7 +34,25 @@ const getAllWithdrawMethod = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteWithdrawMethod = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const { withdrawId } = req.params;
+    const user = req.user;
+    const result = await withdrawMethodService.deleteWithdrawMethod(
+      user as IAuthUser,
+      withdrawId
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Withdraw method deleted!",
+      data: result,
+    });
+  }
+);
+
 export const withdrawMethodController = {
   insertInToDB,
   getAllWithdrawMethod,
+  deleteWithdrawMethod,
 };

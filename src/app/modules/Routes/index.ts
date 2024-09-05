@@ -1,3 +1,5 @@
+import express from "express";
+
 import { AppUserRoutes } from "../AppUser/appUser.route";
 import { AuthRoutes } from "../Auth/auth.route";
 import { DepositRoutes } from "../Deposit/deposit.route";
@@ -5,12 +7,15 @@ import { PaymentMethodRoutes } from "../PaymentMethod/paymentMethod.route";
 import { ReferCommissionRoutes } from "../ReferCommission/referCommission.route";
 import { SignUpBonusRoutes } from "../SignUpBonus/signUpBonus.route";
 import { UserRoutes } from "../User/user.route";
-import express from "express";
+
 import { WithdrawRoutes } from "../Withdraw/withdraw.route";
 import { PackageRoutes } from "../Package/package.route";
 import { BuyPackageRoutes } from "../BuyPackage/buyPackage.route";
 import { CompleteTaskRoutes } from "../CompleteTask/completeTask.route";
 import { WithdrawMethodRoutes } from "../WithdrawMethod/withdrawMethod.route";
+import { MetaDataRoutes } from "../Meta/meta.route";
+import { AdsRoutes } from "../Ads/ads.route";
+import { BannerRoutes } from "../Banner/banner.route";
 export const router = express.Router();
 
 const modulesRoutes = [
@@ -51,7 +56,7 @@ const modulesRoutes = [
     route: ReferCommissionRoutes,
   },
   {
-    path: "/package",
+    path: "/packages",
     route: PackageRoutes,
   },
   {
@@ -61,6 +66,18 @@ const modulesRoutes = [
   {
     path: "/complete-task",
     route: CompleteTaskRoutes,
+  },
+  {
+    path: "/ads",
+    route: AdsRoutes,
+  },
+  {
+    path: "/banner",
+    route: BannerRoutes,
+  },
+  {
+    path: "/meta",
+    route: MetaDataRoutes,
   },
 ];
 

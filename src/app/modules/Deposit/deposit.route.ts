@@ -24,6 +24,12 @@ router.get(
   depositController.getSuccessDeposit
 );
 
+router.get(
+  "/rejected",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  depositController.getRejectedDeposit
+);
+
 router.post(
   "/",
   auth(UserRole.APP_USER),

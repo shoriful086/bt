@@ -7,9 +7,9 @@ import { ICreatedDeposit, IFilterParams } from "./deposit.interface";
 import { depositSearchableField } from "./deposit.constant";
 import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import { sendMessageTelegramBot } from "../../../helpers/sendMessageTelegramBot";
-import { dateFormat } from "../../../helpers/dateFormat";
 import ApiError from "../../erros/apiError";
 import httpStatus from "http-status";
+import formateDate from "./formateDate";
 
 const insertInToDB = async (user: IAuthUser, payload: ICreatedDeposit) => {
   // check trxId
@@ -83,15 +83,14 @@ const insertInToDB = async (user: IAuthUser, payload: ICreatedDeposit) => {
 
   const nowTime = new Date(Date.now());
 
-  const formattedTime = await dateFormat(nowTime);
-  const message = `
-  🔔*Deposit Request Successfully Processed
-   Method: ${methodData.name}
-   User: ${userData.phoneNumber}
-   Payment Number: ${payload.paymentNumber}
-   Amount: ${payload.amount}
-   Trx ID: ${payload.trxId}
-   Time: ${formattedTime}
+  const formattedTime = await formateDate(nowTime);
+  const message = `Deposit Request Successfully
+  Method: ${methodData.name}
+  User: ${userData.phoneNumber}
+  Payment Number: ${payload.paymentNumber}
+  Amount: ${payload.amount} BDT
+  Trx ID: ${payload.trxId}
+  Time: ${formattedTime}
   `;
   await sendMessageTelegramBot(message);
   return result;
@@ -176,9 +175,29 @@ const getSuccessDeposit = async (user: IAuthUser) => {
     where: {
       depositStatus: DepositStatus.SUCCESS,
     },
+    orderBy: {
+      updatedAt: "desc",
+    },
   });
   if (!result) {
     throw new Error("no success deposit data");
+  }
+  return result;
+};
+
+const getRejectedDeposit = async (user: IAuthUser) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const result = await prisma.deposit.findMany({
+    where: {
+      depositStatus: DepositStatus.REJECTED,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+  if (!result) {
+    throw new Error("no rejected deposit data");
   }
   return result;
 };
@@ -301,6 +320,7 @@ export const depositService = {
   getAllDepositData,
   getPendingDeposit,
   getSuccessDeposit,
+  getRejectedDeposit,
   updateDepositStatus,
   depositBonus,
 };

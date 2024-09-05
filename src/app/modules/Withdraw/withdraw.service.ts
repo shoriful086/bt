@@ -7,15 +7,24 @@ import { dateFormat } from "../../../helpers/dateFormat";
 import { sendMessageTelegramBot } from "../../../helpers/sendMessageTelegramBot";
 
 const insertInToDB = async (user: IAuthUser, payload: IMethodData) => {
-  // check user
-  const userData = await prisma.appUser.findUniqueOrThrow({
+  // Check user
+  const userData = await prisma.appUser.findUnique({
     where: {
       phoneNumber: user.phoneNumber,
       isDeleted: false,
     },
   });
 
-  // check method is valid
+  if (!userData) {
+    throw new Error("User not found");
+  }
+
+  // Strict balance check
+  if (userData?.balance < payload?.amount) {
+    throw new Error("Balance not sufficient");
+  }
+
+  // Method validity check
   const methodData = await prisma.withdrawMethod.findFirstOrThrow({
     where: {
       name: {
@@ -25,31 +34,26 @@ const insertInToDB = async (user: IAuthUser, payload: IMethodData) => {
     },
   });
 
-  if (userData && userData.balance < payload.amount) {
-    throw new Error("balance not sufficient");
-  }
-
+  // Check if the withdrawal amount is above the minimum required amount
   if (payload.amount < parseFloat(methodData.minPayment)) {
     throw new Error(
       `Minimum ${methodData.name} withdraw ${methodData.minPayment} BDT`
     );
   }
 
-  if (userData) {
-    const depositData = await prisma.deposit.findFirst({
-      where: {
-        phoneNumber: userData.phoneNumber,
-        depositStatus: DepositStatus.SUCCESS,
-      },
-    });
+  // Check for at least one successful deposit
+  const depositData = await prisma.deposit.findFirst({
+    where: {
+      phoneNumber: userData.phoneNumber,
+      depositStatus: DepositStatus.SUCCESS,
+    },
+  });
 
-    if (!depositData) {
-      throw new Error(
-        "Please minimum 1 time deposit, then you will get withdraw"
-      );
-    }
+  if (!depositData) {
+    throw new Error("Please make a minimum of one deposit before withdrawing.");
   }
 
+  // Transaction to update balance and create a withdrawal record
   const result = await prisma.$transaction(async (tx) => {
     const createWithdraw = await tx.withdraw.create({
       data: {
@@ -60,30 +64,33 @@ const insertInToDB = async (user: IAuthUser, payload: IMethodData) => {
       },
     });
 
-    const nowTime = new Date(Date.now());
-
-    const formattedTime = await dateFormat(nowTime);
-    const message = `
-    🔔*Withdraw Request Successfully Processed
-     Method: ${methodData.name}
-     User: ${userData.phoneNumber}
-     Payment Number: ${payload.paymentReceivedNumber}
-     Amount: ${payload.amount}
-     Time: ${formattedTime}
-    `;
-    await sendMessageTelegramBot(message);
-
     await tx.appUser.update({
       where: {
         phoneNumber: userData.phoneNumber,
+        isDeleted: false,
       },
       data: {
-        balance: userData.balance - payload.amount,
+        balance: userData?.balance - createWithdraw?.amount,
       },
     });
 
+    // const nowTime = await new Date(Date.now());
+    // const formattedTime = await dateFormat(nowTime);
+
+    // const message = await `
+    // 🔔*Withdraw Request Successfully Processed*
+    //  Method: ${methodData.name}
+    //  User: ${userData.phoneNumber}
+    //  Payment Number: ${payload.paymentReceivedNumber}
+    //  Amount: ${payload.amount}
+    //  Time: ${formattedTime}
+    // `;
+
+    // await sendMessageTelegramBot(message);
+
     return createWithdraw;
   });
+
   return result;
 };
 
@@ -93,6 +100,10 @@ const getPendingWithdraw = async (user: IAuthUser) => {
   const result = await prisma.withdraw.findMany({
     where: {
       withdrawStatus: WithdrawStatus.PENDING,
+    },
+
+    orderBy: {
+      createdAt: "desc",
     },
   });
   if (result.length === 0) {
@@ -108,6 +119,10 @@ const getPaidWithdraw = async (user: IAuthUser) => {
   const result = await prisma.withdraw.findMany({
     where: {
       withdrawStatus: WithdrawStatus.PAID,
+    },
+
+    orderBy: {
+      updatedAt: "desc",
     },
   });
   if (result.length === 0) {

@@ -45,7 +45,26 @@ const deletePackage = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Get all packages successful",
+      message: `${result.name} package deleted successfully`,
+      data: result,
+    });
+  }
+);
+
+const updatePackage = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { packageId } = req.params;
+
+    const result = await packageService.updatePackage(
+      user as IAuthUser,
+      packageId,
+      req.body
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: ` package updated!`,
       data: result,
     });
   }
@@ -55,4 +74,5 @@ export const packageController = {
   createPackage,
   getAllPackage,
   deletePackage,
+  updatePackage,
 };

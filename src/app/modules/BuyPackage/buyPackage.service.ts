@@ -20,7 +20,9 @@ const buyPackage = async (user: IAuthUser, payload: { packageId: string }) => {
 
   // Check if the user has enough balance
   if (userData.balance < packageData.price) {
-    throw new Error("Your balance is low, please add balance");
+    throw new Error(
+      "আপনার পর্যাপ্ত পরিমাণ ব্যালেন্স নেই....দয়া করে ব্যালেন্স এড করেন"
+    );
   }
 
   const checkBeforeBuyIt = await prisma.buyPackage.findFirst({

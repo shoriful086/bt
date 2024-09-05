@@ -25,4 +25,10 @@ router.post(
   }
 );
 
+router.delete(
+  "/:paymentMethodId",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  paymentMethodController.deletePaymentMethod
+);
+
 export const PaymentMethodRoutes = router;

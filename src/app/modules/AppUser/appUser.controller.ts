@@ -21,15 +21,42 @@ const getUserById = catchAsync(
   }
 );
 
-const deleteUser = catchAsync(
+const blockedUser = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const { id } = req.params;
     const user = req.user;
-    const result = await appUserService.deleteUser(user as IAuthUser, id);
+    const result = await appUserService.blockedUser(user as IAuthUser, id);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "User deleted successfully",
+      message: `${result.name} blocked`,
+      data: result,
+    });
+  }
+);
+
+const getBlockedFromDB = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await appUserService.getBlockedFromDB(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "All blocked data fetched",
+      data: result,
+    });
+  }
+);
+
+const userUnblocked = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    const result = await appUserService.userUnblocked(user as IAuthUser, id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: `${result.name} unblocked`,
       data: result,
     });
   }
@@ -59,11 +86,11 @@ const getAllUserFromDB = catchAsync(
 
 const updateUser = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
-    const { id } = req.params;
+    const { userId } = req.params;
     const user = req.user;
     const result = await appUserService.updateUser(
       user as IAuthUser,
-      id,
+      userId,
       req.body
     );
 
@@ -78,7 +105,9 @@ const updateUser = catchAsync(
 
 export const appUserController = {
   getUserById,
-  deleteUser,
+  blockedUser,
   getAllUserFromDB,
   updateUser,
+  getBlockedFromDB,
+  userUnblocked,
 };

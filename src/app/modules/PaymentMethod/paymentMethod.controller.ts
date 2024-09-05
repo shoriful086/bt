@@ -17,7 +17,7 @@ const createMethod = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Payment method created successfully",
+      message: `Payment method ${result?.name} created`,
       data: result,
     });
   }
@@ -33,7 +33,25 @@ const getAllPaymentMethod = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deletePaymentMethod = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const { paymentMethodId } = req.params;
+    const user = req.user;
+    const result = await paymentMethodService.deletePaymentMethod(
+      user as IAuthUser,
+      paymentMethodId
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Payment method deleted!",
+      data: result,
+    });
+  }
+);
+
 export const paymentMethodController = {
   createMethod,
   getAllPaymentMethod,
+  deletePaymentMethod,
 };
