@@ -21,6 +21,38 @@ const insertInToDB = catchAsync(
   }
 );
 
+const getBonusData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await referCommissionService.getBonusData(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Refer get successfully",
+      data: result,
+    });
+  }
+);
+
+const deleteBonusData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    const result = await referCommissionService.deleteBonusData(
+      user as IAuthUser,
+      id
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Refer bonus deleted!",
+      data: result,
+    });
+  }
+);
+
 export const referCommissionController = {
   insertInToDB,
+  getBonusData,
+  deleteBonusData,
 };

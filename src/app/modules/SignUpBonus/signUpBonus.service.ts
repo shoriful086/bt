@@ -22,11 +22,38 @@ const insertInToDB = async (
   return result;
 };
 
-const getBonusData = async () => {
+const getBonusData = async (user: IAuthUser) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
   const result = await prisma.signUpBonus.findFirstOrThrow();
+  if (!result) {
+    throw new Error("No bonus data found");
+  }
   return result;
 };
+const deleteBonusData = async (user: IAuthUser, id: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const bonusData = await prisma.signUpBonus.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!bonusData) {
+    throw new Error("No data found");
+  }
+
+  const result = await prisma.signUpBonus.delete({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
 export const signUpBonusService = {
   insertInToDB,
   getBonusData,
+  deleteBonusData,
 };

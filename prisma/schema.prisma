@@ -54,21 +54,25 @@ model AppUser {
   phoneNumber String @unique
   user        User   @relation(fields: [phoneNumber], references: [phoneNumber])
 
-  balance        Float          @default(0)
-  depositBalance Float          @default(0)
-  referIncome    Float          @default(0)
-  earnedForAd    Float          @default(0)
-  isDeleted      Boolean        @default(false)
-  referrelCode   String
-  refererBy      String?
-  referLink      String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  refer          Refer[]
-  deposit        Deposit[]
-  withdraw       Withdraw[]
-  buyPackage     BuyPackage[]
-  completeTask   CompleteTask[]
+  balance               Float                   @default(0)
+  depositBalance        Float                   @default(0)
+  referIncome           Float                   @default(0)
+  earnedForAd           Float                   @default(0)
+  earnForSpin           Float                   @default(0)
+  isDeleted             Boolean                 @default(false)
+  referrelCode          String
+  refererBy             String?
+  referLink             String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  refer                 Refer[]
+  deposit               Deposit[]
+  withdraw              Withdraw[]
+  buyPackage            BuyPackage[]
+  completeTask          CompleteTask[]
+  luckySpins            LuckySpins[]
+  bet                   Bet[]
+  userDashboardMetaData UserDashboardMetaData[]
 
   @@map("appUsers")
 }
@@ -218,10 +222,69 @@ model Banner {
   @@map("banners")
 }
 
+model PaymentNotices {
+  id                           String @id @default(uuid())
+  depositFirstPageNotice       String
+  depositSecondPageNoticeBkash String
+  depositSecondPageNoticeNagad String
+  withdrawPageNotice           String
+
+  @@map("payment_notice")
+}
+
+model Bet {
+  id         String  @id @default(uuid())
+  userNumber String
+  user       AppUser @relation(fields: [userNumber], references: [phoneNumber])
+  amount     Float   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@map("bets")
+}
+
+model LuckySpins {
+  id         String  @id @default(uuid())
+  userNumber String
+  user       AppUser @relation(fields: [userNumber], references: [phoneNumber])
+  spinLabel  String
+  spinAmount String
+  winAmount  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@map("lucky_spins")
+}
+
+model UserDashboardMetaData {
+  id          String   @id @default(uuid())
+  amount      Float
+  phoneNumber String
+  user        AppUser  @relation(fields: [phoneNumber], references: [phoneNumber])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+
+  @@map("user_dashboard_meta_data")
+}
+
+model PrivateNumber {
+  id                String   @id @default(uuid())
+  number            String   @unique
+  count             Float    @default(0)
+  copyDurationCount Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt()
+
+  @@map("private_number")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
   APP_USER
+  DEVELOPER
 }
 
 enum UserStatus {

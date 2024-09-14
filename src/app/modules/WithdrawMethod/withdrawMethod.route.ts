@@ -9,13 +9,18 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   withdrawMethodController.getAllWithdrawMethod
 );
 
 router.post(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   fileUploader.upload.single("file"),
 
   (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +33,7 @@ router.post(
 
 router.delete(
   "/:withdrawId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   withdrawMethodController.deleteWithdrawMethod
 );
 export const WithdrawMethodRoutes = router;

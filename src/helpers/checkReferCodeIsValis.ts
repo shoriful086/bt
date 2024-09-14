@@ -2,7 +2,7 @@ import { ReferStatus } from "@prisma/client";
 import { prisma } from "../shared/prisma";
 
 const checkReferCodeAndCreateRefer = async (payload: any) => {
-  if (payload.appUser.refererBy) {
+  if (payload?.appUser?.refererBy) {
     const checkReferCode = await prisma.appUser.findFirst({
       where: {
         referrelCode: payload.appUser.refererBy,

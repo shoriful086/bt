@@ -63,7 +63,7 @@ const insertInToDB = async (user: IAuthUser, payload: ICreatedDeposit) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid service provider");
   }
 
-  if (payload.trxId.length !== maxLength) {
+  if (payload?.trxId?.length !== maxLength) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       `Transaction id must be ${maxLength} character`
@@ -221,6 +221,36 @@ const depositBonus = async (
   return result;
 };
 
+const getBonusData = async (user: IAuthUser) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  const result = await prisma.depositBonus.findFirstOrThrow();
+  if (!result) {
+    throw new Error("No bonus data found");
+  }
+  return result;
+};
+const deleteBonusData = async (user: IAuthUser, id: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const bonusData = await prisma.depositBonus.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!bonusData) {
+    throw new Error("No data found");
+  }
+
+  const result = await prisma.depositBonus.delete({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
 const updateDepositStatus = async (
   user: IAuthUser,
   depositId: string,
@@ -323,4 +353,6 @@ export const depositService = {
   getRejectedDeposit,
   updateDepositStatus,
   depositBonus,
+  getBonusData,
+  deleteBonusData,
 };

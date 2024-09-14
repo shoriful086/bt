@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { fileUploader } from "../../../helpers/fileUploader";
 import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import { prisma } from "../../../shared/prisma";
@@ -31,7 +32,10 @@ const insertInToDB = async (user: IAuthUser, file: IFileType, payload: any) => {
   return result;
 };
 
-const getAllWithdrawMethod = async () => {
+const getAllWithdrawMethod = async (user: IAuthUser) => {
+  if (user?.role !== UserRole.APP_USER) {
+    await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  }
   const paymentMethodData = await prisma.withdrawMethod.findMany();
   if (!paymentMethodData) {
     throw new Error("No withdraw method available");

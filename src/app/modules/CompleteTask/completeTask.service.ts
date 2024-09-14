@@ -40,11 +40,15 @@ const insertInToDB = async (user: IAuthUser, payload: any) => {
     throw new Error("Don't submit this task today.");
   }
 
+  const newBalance = await prisma.ads.findFirst();
+
   const result = prisma.$transaction(async (tx) => {
     const completeTask = await tx.completeTask.create({
       data: {
         userNumber: userData.phoneNumber,
-        ...payload,
+        packageId: payload.packageId,
+        packageName: payload.packageName,
+        earned: payload.earned,
       },
     });
 
@@ -53,8 +57,15 @@ const insertInToDB = async (user: IAuthUser, payload: any) => {
         phoneNumber: userData.phoneNumber,
       },
       data: {
-        balance: userData.balance + 100,
-        earnedForAd: userData.earnedForAd + 100,
+        balance: userData.balance + newBalance!.price,
+        earnedForAd: userData.earnedForAd + newBalance!.price,
+      },
+    });
+
+    await tx.userDashboardMetaData.create({
+      data: {
+        phoneNumber: userData?.phoneNumber,
+        amount: newBalance!.price,
       },
     });
 

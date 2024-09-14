@@ -8,20 +8,25 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   bannerController.getAllBannerImage
 );
 
 router.post(
   "/create",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   fileUploader.upload.single("file"),
   bannerController.insertInToDB
 );
 
 router.delete(
   "/:bannerId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   bannerController.deleteBanner
 );
 

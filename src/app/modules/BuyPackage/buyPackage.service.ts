@@ -3,6 +3,7 @@ import { todayDate } from "../../../helpers/isTodayDate";
 import { prisma } from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/auth";
 import { CompleteTask } from "@prisma/client";
+import { currentAdminIsValid } from "../../../shared/currentAdmin";
 
 const buyPackage = async (user: IAuthUser, payload: { packageId: string }) => {
   const userData = await prisma.appUser.findUniqueOrThrow({
@@ -20,9 +21,7 @@ const buyPackage = async (user: IAuthUser, payload: { packageId: string }) => {
 
   // Check if the user has enough balance
   if (userData.balance < packageData.price) {
-    throw new Error(
-      "আপনার পর্যাপ্ত পরিমাণ ব্যালেন্স নেই....দয়া করে ব্যালেন্স এড করেন"
-    );
+    throw new Error("Insufficient balance, Please add Balance");
   }
 
   const checkBeforeBuyIt = await prisma.buyPackage.findFirst({
@@ -144,7 +143,37 @@ const getMyPurchasePackage = async (user: IAuthUser) => {
   return remainingPackages;
 };
 
+const getAllPackage = async (user: IAuthUser) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const groupedResult = await prisma.buyPackage.groupBy({
+    by: ["pakcageId"],
+    _count: true,
+  });
+
+  // Step 2: Fetch package names based on grouped packageIds
+  const packageIds = groupedResult.map((group) => group.pakcageId);
+
+  const packages = await prisma.package.findMany({
+    where: { id: { in: packageIds } },
+    select: { id: true, name: true, createdAt: true },
+  });
+
+  // Step 3: Combine the results
+  const resultWithPackageNames = groupedResult.map((group) => {
+    const packagess = packages.find((pkg) => pkg.id === group.pakcageId);
+
+    return {
+      ...group,
+      packageName: packagess?.name ? packagess?.name : null,
+      createdAt: packagess?.createdAt ? packagess?.createdAt : null,
+    };
+  });
+
+  return resultWithPackageNames;
+};
 export const buyPackageService = {
   buyPackage,
   getMyPurchasePackage,
+  getAllPackage,
 };

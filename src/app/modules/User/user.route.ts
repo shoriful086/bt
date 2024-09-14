@@ -8,12 +8,17 @@ import { UserRole } from "@prisma/client";
 const router = express.Router();
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   userController.getAllUserFromDB
 );
 router.get(
   "/my-profile",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   userController.getMyProfile
 );
 
@@ -27,7 +32,7 @@ router.post(
 
 router.post(
   "/create-admin",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.createAdmin.parse(req.body);
     return userController.createAdmin(req, res, next);
@@ -36,7 +41,12 @@ router.post(
 
 router.patch(
   "/update-profile",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   (req, res, next) => {
     req.body = userValidation.updateUser.parse(req.body);
     return userController.updateProfile(req, res, next);
@@ -45,7 +55,7 @@ router.patch(
 
 router.patch(
   "/:id/status",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req, res, next) => {
     req.body = userValidation.updateUserStatus.parse(req.body);
     return userController.updateUserStatus(req, res, next);

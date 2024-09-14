@@ -8,13 +8,18 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   packageController.getAllPackage
 );
 
 router.post(
   "/create",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = packageValidation.createPackage.parse(req.body);
     return packageController.createPackage(req, res, next);
@@ -23,13 +28,13 @@ router.post(
 
 router.delete(
   "/:packageId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   packageController.deletePackage
 );
 
 router.patch(
   "/:packageId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = packageValidation.updatePackage.parse(req.body);
     return packageController.updatePackage(req, res, next);

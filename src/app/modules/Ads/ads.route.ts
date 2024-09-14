@@ -7,12 +7,17 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   adsController.getAllAdsFromDB
 );
 router.post(
   "/create",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = adsValidation.createAd.parse(req.body);
     return adsController.insertIntoDB(req, res, next);
@@ -21,7 +26,7 @@ router.post(
 
 router.delete(
   "/:adsId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   adsController.deleteAds
 );
 

@@ -16,6 +16,10 @@ import { WithdrawMethodRoutes } from "../WithdrawMethod/withdrawMethod.route";
 import { MetaDataRoutes } from "../Meta/meta.route";
 import { AdsRoutes } from "../Ads/ads.route";
 import { BannerRoutes } from "../Banner/banner.route";
+import { PaymentNoticeRoutes } from "../PaymentNotice/paymentRoute";
+import { BetRoutes } from "../Bet/bet.route";
+import { SpinRoutes } from "../LuckySpin/spin.route";
+import { AdminRoutes } from "../Admin/admin.route";
 export const router = express.Router();
 
 const modulesRoutes = [
@@ -26,6 +30,10 @@ const modulesRoutes = [
   {
     path: "/auth",
     route: AuthRoutes,
+  },
+  {
+    path: "/admin",
+    route: AdminRoutes,
   },
   {
     path: "/app-user",
@@ -50,6 +58,10 @@ const modulesRoutes = [
   {
     path: "/withdraw",
     route: WithdrawRoutes,
+  },
+  {
+    path: "/payment-notice",
+    route: PaymentNoticeRoutes,
   },
   {
     path: "/refer-commission",
@@ -78,6 +90,14 @@ const modulesRoutes = [
   {
     path: "/meta",
     route: MetaDataRoutes,
+  },
+  {
+    path: "/bet",
+    route: BetRoutes,
+  },
+  {
+    path: "/spin",
+    route: SpinRoutes,
   },
 ];
 

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "appUsers" ADD COLUMN     "earnForSpin" DOUBLE PRECISION NOT NULL DEFAULT 0;

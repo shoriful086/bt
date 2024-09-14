@@ -10,7 +10,12 @@ router.post("/admin-login", authController.loginAdmin);
 
 router.patch(
   "/change-password",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   authController.changePassword
 );
 

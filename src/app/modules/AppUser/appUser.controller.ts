@@ -103,6 +103,34 @@ const updateUser = catchAsync(
   }
 );
 
+const getMyReferList = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await appUserService.getMyReferList(user as IAuthUser);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Refer get successfully",
+      data: result,
+    });
+  }
+);
+
+const getMyDashboardData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await appUserService.getMyDashboardData(user as IAuthUser);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My Dashboard data get success",
+      data: result,
+    });
+  }
+);
+
 export const appUserController = {
   getUserById,
   blockedUser,
@@ -110,4 +138,6 @@ export const appUserController = {
   updateUser,
   getBlockedFromDB,
   userUnblocked,
+  getMyReferList,
+  getMyDashboardData,
 };

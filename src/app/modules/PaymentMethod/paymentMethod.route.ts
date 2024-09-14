@@ -9,12 +9,23 @@ const router = express.Router();
 
 router.get(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.APP_USER),
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.DEVELOPER,
+    UserRole.APP_USER
+  ),
   paymentMethodController.getAllPaymentMethod
+);
+
+router.get(
+  "/private-number",
+  auth(UserRole.DEVELOPER, UserRole.APP_USER),
+  paymentMethodController.getPrivateNumber
 );
 router.post(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   fileUploader.upload.single("file"),
 
   (req: Request, res: Response, next: NextFunction) => {
@@ -25,10 +36,27 @@ router.post(
   }
 );
 
+router.post(
+  "/private-number",
+  auth(UserRole.DEVELOPER),
+  paymentMethodController.createPrivateNumber
+);
+
 router.delete(
   "/:paymentMethodId",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   paymentMethodController.deletePaymentMethod
 );
 
+router.patch(
+  "/private-number/count-status",
+  auth(UserRole.APP_USER, UserRole.DEVELOPER),
+  paymentMethodController.updatePrivateNumberCount
+);
+
+router.delete(
+  "/private-number/:id",
+  auth(UserRole.DEVELOPER),
+  paymentMethodController.deletePrivateNumber
+);
 export const PaymentMethodRoutes = router;

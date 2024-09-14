@@ -24,15 +24,20 @@ const insertInToDB = catchAsync(
   }
 );
 
-const getAllWithdrawMethod = catchAsync(async (req: Request, res: Response) => {
-  const result = await withdrawMethodService.getAllWithdrawMethod();
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Withdraw method fetched successfully",
-    data: result,
-  });
-});
+const getAllWithdrawMethod = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await withdrawMethodService.getAllWithdrawMethod(
+      user as IAuthUser
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Withdraw method fetched successfully",
+      data: result,
+    });
+  }
+);
 
 const deleteWithdrawMethod = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {

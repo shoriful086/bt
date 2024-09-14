@@ -3,7 +3,7 @@ import { IAuthUser } from "../../interfaces/auth";
 import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import { prisma } from "../../../shared/prisma";
 import { fileUploader } from "../../../helpers/fileUploader";
-import { UserStatus } from "@prisma/client";
+import { UserRole, UserStatus } from "@prisma/client";
 
 const insertInToDB = async (user: IAuthUser, req: Request) => {
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
@@ -24,6 +24,9 @@ const insertInToDB = async (user: IAuthUser, req: Request) => {
 };
 
 const getAllBannerImage = async (user: IAuthUser) => {
+  if (user?.role !== UserRole.APP_USER) {
+    await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  }
   await prisma.user.findUniqueOrThrow({
     where: {
       phoneNumber: user?.phoneNumber,

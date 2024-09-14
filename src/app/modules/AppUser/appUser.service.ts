@@ -30,7 +30,13 @@ const getUserById = async (user: IAuthUser, id: string) => {
           package: true,
         },
       },
-      completeTask: true,
+      completeTask: {
+        include: {
+          package: true,
+          user: true,
+        },
+      },
+      luckySpins: true,
     },
   });
 
@@ -196,8 +202,6 @@ const updateUser = async (
     },
   });
 
-  console.log(userData);
-
   const result = await prisma.$transaction(async (tx) => {
     if (payload.name || (payload.email && payload.phoneNumber)) {
       await tx.user.update({
@@ -230,6 +234,85 @@ const updateUser = async (
   return result;
 };
 
+const getMyReferList = async (user: IAuthUser) => {
+  const userData = await prisma.appUser.findUnique({
+    where: {
+      phoneNumber: user.phoneNumber,
+      isDeleted: false,
+    },
+  });
+
+  if (!userData) {
+    throw new Error("No user found");
+  }
+
+  const result = await prisma.appUser.findMany({
+    where: {
+      refererBy: userData.referrelCode,
+    },
+    select: {
+      phoneNumber: true,
+      name: true,
+      createdAt: true,
+    },
+  });
+  return result;
+};
+
+const getMyDashboardData = async (user: IAuthUser) => {
+  const userData = await prisma.appUser.findUniqueOrThrow({
+    where: {
+      phoneNumber: user.phoneNumber,
+      isDeleted: false,
+    },
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  // Get yesterday's date at 00:00:00 and 23:59:59
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const result = await prisma.$transaction(async (tx) => {
+    const todayIncome = await tx.userDashboardMetaData.aggregate({
+      where: {
+        phoneNumber: userData?.phoneNumber,
+        createdAt: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const yesterdayIncome = await tx.userDashboardMetaData.aggregate({
+      where: {
+        phoneNumber: userData?.phoneNumber,
+        createdAt: {
+          gte: yesterday, // Greater than or equal to yesterday 00:00:00
+          lt: today,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const todayEarn = todayIncome._sum.amount;
+    const yesterdayEarn = yesterdayIncome._sum.amount;
+    return {
+      todayEarn,
+      yesterdayEarn,
+    };
+  });
+
+  return result;
+};
 export const appUserService = {
   getUserById,
   blockedUser,
@@ -237,4 +320,6 @@ export const appUserService = {
   getBlockedFromDB,
   updateUser,
   userUnblocked,
+  getMyReferList,
+  getMyDashboardData,
 };

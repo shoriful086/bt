@@ -117,6 +117,33 @@ const depositBonus = catchAsync(
   }
 );
 
+const getBonusData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await depositService.getBonusData(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: `Deposit bonus fetched!`,
+      data: result,
+    });
+  }
+);
+
+const deleteBonusData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    const result = await depositService.deleteBonusData(user as IAuthUser, id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: `Deposit bonus deleted!`,
+      data: result,
+    });
+  }
+);
+
 export const depositController = {
   insertInToDB,
   getAllDepositData,
@@ -125,4 +152,6 @@ export const depositController = {
   getRejectedDeposit,
   updateDepositStatus,
   depositBonus,
+  getBonusData,
+  deleteBonusData,
 };

@@ -15,8 +15,11 @@ import { IPaginationOptions } from "../../interfaces/iPagination";
 import { any } from "zod";
 import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import checkReferCodeAndCreateRefer from "../../../helpers/checkReferCodeIsValis";
+import { jwtHelpers } from "../../../helpers/jwtHelpers";
+import config from "../../../config";
+import { Secret } from "jsonwebtoken";
 
-const createUser = async (payload: IAppUser): Promise<AppUser> => {
+const createUser = async (payload: IAppUser) => {
   const hashedPassword = await bcrypt.hash(payload.password, 12);
 
   const referralCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -29,6 +32,10 @@ const createUser = async (payload: IAppUser): Promise<AppUser> => {
 
   if (isUserExists) {
     throw new Error("User already exist");
+  }
+
+  if (payload?.appUser?.name.length > 20) {
+    throw new Error("Name must be under 20 characters");
   }
 
   // create appUser and refer
@@ -55,6 +62,7 @@ const createUser = async (payload: IAppUser): Promise<AppUser> => {
         depositBalance: 0,
         referIncome: 0,
         earnedForAd: 0,
+        earnForSpin: 0,
         referrelCode: referralCode,
         refererBy: payload.appUser.refererBy,
         referLink: `https://btpay.com/register?referral=${referralCode}`,
@@ -63,8 +71,17 @@ const createUser = async (payload: IAppUser): Promise<AppUser> => {
 
     await checkReferCodeAndCreateRefer(payload);
 
-    return newUser;
+    const token = await jwtHelpers.generateToken(
+      { phoneNumber: newUser.phoneNumber, role: user.role },
+      config.jwt_secret as Secret,
+      config.jwt_expires_in as string
+    );
+
+    return {
+      token,
+    };
   });
+
   return result;
 };
 
@@ -195,7 +212,7 @@ const getMyProfile = async (user: IAuthUser) => {
   });
 
   let profileInfo;
-  if (user.role === UserRole.APP_USER) {
+  if (user?.role === UserRole.APP_USER) {
     profileInfo = await prisma.appUser.findUnique({
       where: {
         email: userData.email,
@@ -216,10 +233,49 @@ const getMyProfile = async (user: IAuthUser) => {
         },
       },
     });
-  } else {
-    profileInfo = await prisma.admin.findUnique({
+  } else if (user?.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.user.findUniqueOrThrow({
       where: {
         email: userData.email,
+        status: UserStatus.ACTIVE,
+      },
+      select: {
+        email: true,
+        name: true,
+        phoneNumber: true,
+        createdAt: true,
+        status: true,
+        role: true,
+      },
+    });
+  } else if (user?.role === UserRole.ADMIN) {
+    profileInfo = await prisma.user.findUniqueOrThrow({
+      where: {
+        email: userData.email,
+        status: UserStatus.ACTIVE,
+      },
+      select: {
+        email: true,
+        name: true,
+        phoneNumber: true,
+        createdAt: true,
+        status: true,
+        role: true,
+      },
+    });
+  } else if (user?.role === UserRole.DEVELOPER) {
+    profileInfo = await prisma.user.findUniqueOrThrow({
+      where: {
+        email: userData.email,
+        status: UserStatus.ACTIVE,
+      },
+      select: {
+        email: true,
+        name: true,
+        phoneNumber: true,
+        createdAt: true,
+        status: true,
+        role: true,
       },
     });
   }

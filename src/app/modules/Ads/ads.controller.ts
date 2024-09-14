@@ -18,15 +18,18 @@ const insertIntoDB = catchAsync(
   }
 );
 
-const getAllAdsFromDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await adsService.getAllAdsFromDB();
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Get all ads",
-    data: result,
-  });
-});
+const getAllAdsFromDB = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await adsService.getAllAdsFromDB(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Get all ads",
+      data: result,
+    });
+  }
+);
 
 const deleteAds = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {

@@ -22,6 +22,38 @@ const insertInToDB = async (
   return result;
 };
 
+const getBonusData = async (user: IAuthUser) => {
+  const result = await prisma.referCommission.findFirstOrThrow();
+  if (!result) {
+    throw new Error("No bonus data found");
+  }
+  return result;
+};
+
+const deleteBonusData = async (user: IAuthUser, id: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const bonusData = await prisma.referCommission.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!bonusData) {
+    throw new Error("No data found");
+  }
+
+  const result = await prisma.referCommission.delete({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
 export const referCommissionService = {
   insertInToDB,
+  getBonusData,
+  deleteBonusData,
 };

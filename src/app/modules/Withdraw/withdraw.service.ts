@@ -21,7 +21,7 @@ const insertInToDB = async (user: IAuthUser, payload: IMethodData) => {
 
   // Strict balance check
   if (userData?.balance < payload?.amount) {
-    throw new Error("Balance not sufficient");
+    throw new Error("Insufficient Balance ");
   }
 
   // Method validity check

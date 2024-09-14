@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import { prisma } from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/auth";
@@ -19,7 +20,10 @@ const insertIntoDB = async (user: IAuthUser, payload: { price: number }) => {
   return result;
 };
 
-const getAllAdsFromDB = async () => {
+const getAllAdsFromDB = async (user: IAuthUser) => {
+  if (user?.role !== UserRole.APP_USER) {
+    await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  }
   const result = await prisma.ads.findFirst();
   if (!result) {
     throw new Error("Ads not found ");

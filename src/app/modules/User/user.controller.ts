@@ -9,6 +9,7 @@ import { userFilterableField } from "./user.constants";
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.createUser(req.body);
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

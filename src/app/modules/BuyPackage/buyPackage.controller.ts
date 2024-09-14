@@ -35,8 +35,21 @@ const getMyPurchasePackage = catchAsync(
     });
   }
 );
+const getAllPackage = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await buyPackageService.getAllPackage(user as IAuthUser);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Get all purchase package",
+      data: result,
+    });
+  }
+);
 
 export const buyPackageController = {
   buyPackage,
   getMyPurchasePackage,
+  getAllPackage,
 };

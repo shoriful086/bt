@@ -31,6 +31,9 @@ const createPackage = async (user: IAuthUser, payload: IPackage) => {
 };
 
 const getAllPackage = async (user: IAuthUser) => {
+  if (user?.role !== UserRole.APP_USER) {
+    await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  }
   const userData = await prisma.user.findUnique({
     where: {
       phoneNumber: user.phoneNumber,

@@ -1,3 +1,5 @@
+import { UserRole } from "@prisma/client";
+
 export type IAppUser = {
   password: string;
   appUser: {

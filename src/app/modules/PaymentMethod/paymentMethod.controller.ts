@@ -23,15 +23,20 @@ const createMethod = catchAsync(
   }
 );
 
-const getAllPaymentMethod = catchAsync(async (req: Request, res: Response) => {
-  const result = await paymentMethodService.getAllPaymentMethod();
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Payment method fetched successfully",
-    data: result,
-  });
-});
+const getAllPaymentMethod = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await paymentMethodService.getAllPaymentMethod(
+      user as IAuthUser
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Payment method fetched successfully",
+      data: result,
+    });
+  }
+);
 
 const deletePaymentMethod = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -50,8 +55,75 @@ const deletePaymentMethod = catchAsync(
   }
 );
 
+const createPrivateNumber = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await paymentMethodService.createPrivateNumber(
+      user as IAuthUser,
+      req.body
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Payment method Created!",
+      data: result,
+    });
+  }
+);
+
+const getPrivateNumber = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await paymentMethodService.getPrivateNumber(
+      user as IAuthUser
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Payment method get success!",
+      data: result,
+    });
+  }
+);
+
+const deletePrivateNumber = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    console.log(id);
+    const result = await paymentMethodService.deletePrivateNumber(
+      user as IAuthUser,
+      id
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Number deleted!",
+      data: result,
+    });
+  }
+);
+
+const updatePrivateNumberCount = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await paymentMethodService.updatePrivateNumberCount(
+      req.body
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Payment method update success!",
+      data: result,
+    });
+  }
+);
+
 export const paymentMethodController = {
   createMethod,
   getAllPaymentMethod,
   deletePaymentMethod,
+  createPrivateNumber,
+  getPrivateNumber,
+  updatePrivateNumberCount,
+  deletePrivateNumber,
 };
