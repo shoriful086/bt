@@ -1,4 +1,4 @@
-import { Prisma, UserStatus } from "@prisma/client";
+import { DepositStatus, Prisma, UserStatus } from "@prisma/client";
 import { prisma } from "../../../shared/prisma";
 import { userSearchableField } from "./appUser.constants";
 import { paginationHelpers } from "../../../helpers/paginationHelpers";
@@ -143,7 +143,7 @@ const blockedUser = async (user: IAuthUser, id: string) => {
         email: updateUser.email,
       },
       data: {
-        status: UserStatus.DELETED,
+        status: UserStatus.BLOCKED,
       },
     });
 
@@ -250,9 +250,16 @@ const getMyReferList = async (user: IAuthUser) => {
     where: {
       refererBy: userData.referrelCode,
     },
+
     select: {
       phoneNumber: true,
       name: true,
+      deposit: {
+        take: 1,
+        select: {
+          depositStatus: true,
+        },
+      },
       createdAt: true,
     },
   });

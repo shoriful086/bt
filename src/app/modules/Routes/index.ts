@@ -20,6 +20,10 @@ import { PaymentNoticeRoutes } from "../PaymentNotice/paymentRoute";
 import { BetRoutes } from "../Bet/bet.route";
 import { SpinRoutes } from "../LuckySpin/spin.route";
 import { AdminRoutes } from "../Admin/admin.route";
+import { ReferBonusRoutes } from "../ReferBonus/referBonus.route";
+import { MultiplyRoutes } from "../LuckySpinMultiply/multiply.route";
+import { NoticeRoutes } from "../Notice/notice.route";
+import { TargetReferBonusRoute } from "../TargetReferBonus/targetReferBonus.route";
 export const router = express.Router();
 
 const modulesRoutes = [
@@ -98,6 +102,22 @@ const modulesRoutes = [
   {
     path: "/spin",
     route: SpinRoutes,
+  },
+  {
+    path: "/refer-bonus",
+    route: ReferBonusRoutes,
+  },
+  {
+    path: "/spin-multiply",
+    route: MultiplyRoutes,
+  },
+  {
+    path: "/notice",
+    route: NoticeRoutes,
+  },
+  {
+    path: "/target-refer",
+    route: TargetReferBonusRoute,
   },
 ];
 

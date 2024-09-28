@@ -269,6 +269,7 @@ const updateDepositStatus = async (
   const userData = await prisma.appUser.findUniqueOrThrow({
     where: {
       phoneNumber: depositData.phoneNumber,
+      isDeleted: false,
     },
   });
 
@@ -314,6 +315,7 @@ const updateDepositStatus = async (
       await tx.appUser.update({
         where: {
           phoneNumber: userData.phoneNumber,
+          isDeleted: false,
         },
         data: {
           balance: userData.balance + depositData.amount + bonus!,

@@ -45,7 +45,11 @@ const insertInToDB = async (user: IAuthUser, payload: any) => {
 const getAllSpin = async (user: IAuthUser) => {
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
 
-  const result = await prisma.luckySpins.findMany();
+  const result = await prisma.luckySpins.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   if (!result) {
     throw new Error("No spin data found");
   }

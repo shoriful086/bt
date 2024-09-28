@@ -1,12 +1,9 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { UserRoutes } from "./app/modules/User/user.route";
 import { router } from "./app/modules/Routes";
-
 import apiNotFoundErrorHandler from "./app/apiNotFoundErrorHandler/apiNotFoundHandler";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-
 const app: Application = express();
 
 app.use(

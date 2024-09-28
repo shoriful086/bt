@@ -17,7 +17,7 @@ const insertInToDB = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Deposit added successful",
+      message: "Deposit request successful",
       data: result,
     });
   }

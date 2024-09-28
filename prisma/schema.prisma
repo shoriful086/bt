@@ -54,25 +54,28 @@ model AppUser {
   phoneNumber String @unique
   user        User   @relation(fields: [phoneNumber], references: [phoneNumber])
 
-  balance               Float                   @default(0)
-  depositBalance        Float                   @default(0)
-  referIncome           Float                   @default(0)
-  earnedForAd           Float                   @default(0)
-  earnForSpin           Float                   @default(0)
-  isDeleted             Boolean                 @default(false)
-  referrelCode          String
-  refererBy             String?
-  referLink             String
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  refer                 Refer[]
-  deposit               Deposit[]
-  withdraw              Withdraw[]
-  buyPackage            BuyPackage[]
-  completeTask          CompleteTask[]
-  luckySpins            LuckySpins[]
-  bet                   Bet[]
-  userDashboardMetaData UserDashboardMetaData[]
+  balance                 Float                     @default(0)
+  depositBalance          Float                     @default(0)
+  referIncome             Float                     @default(0)
+  earnedForAd             Float                     @default(0)
+  earnForSpin             Float                     @default(0)
+  isDeleted               Boolean                   @default(false)
+  referrelCode            String
+  refererBy               String?
+  referLink               String
+  deviceToken             String?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  refer                   Refer[]
+  deposit                 Deposit[]
+  withdraw                Withdraw[]
+  buyPackage              BuyPackage[]
+  completeTask            CompleteTask[]
+  luckySpins              LuckySpins[]
+  bet                     Bet[]
+  userDashboardMetaData   UserDashboardMetaData[]
+  referBonusClaimed       ReferBonusClaimed[]
+  targetReferBonusClaimed TargetReferBonusClaimed[]
 
   @@map("appUsers")
 }
@@ -278,6 +281,66 @@ model PrivateNumber {
   updatedAt         DateTime @updatedAt()
 
   @@map("private_number")
+}
+
+model ReferBonus {
+  id                 String   @id @default(uuid())
+  inviteFriendLength String
+  bonusAmount        Float    @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt()
+
+  @@map("refer_bonus")
+}
+
+model ReferBonusClaimed {
+  id         String   @id @default(uuid())
+  userNumber String
+  user       AppUser  @relation(fields: [userNumber], references: [phoneNumber])
+  amount     Float
+  referCount String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+
+  @@map("refer_bonus_claimed")
+}
+
+model WheelMultiply {
+  id        String   @id @default(uuid())
+  multiply  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model Notice {
+  id        String   @id @default(uuid())
+  notice    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@map("notice")
+}
+
+model TargetRefer {
+  id                  String   @id @default(uuid())
+  targetReferQuantity String
+  bonusAmount         String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt()
+
+  @@map("target_refers")
+}
+
+model TargetReferBonusClaimed {
+  id              String  @id @default(uuid())
+  userPhoneNumber String
+  user            AppUser @relation(fields: [userPhoneNumber], references: [phoneNumber])
+  referCount      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  @@map("target_refer_bonus_claimed")
 }
 
 enum UserRole {

@@ -12,7 +12,7 @@ const createBet = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Spin accepted",
+      message: "Accepted",
       data: result,
     });
   }

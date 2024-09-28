@@ -8,7 +8,9 @@ import { metaDataService } from "./meta.service";
 const getMetaData = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
     const user = req.user;
-    const result = await metaDataService.getMetaData(user as IAuthUser);
+    const date = req.query;
+
+    const result = await metaDataService.getMetaData(user as IAuthUser, date);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
