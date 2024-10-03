@@ -4,8 +4,10 @@ import { prisma } from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/auth";
 
 const getMetaData = async (user: IAuthUser, date: any) => {
+  console.log(user);
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
 
+  console.log(user);
   if (date?.date === "todays") {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

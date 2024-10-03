@@ -65,9 +65,27 @@ const getMyReferClaimedData = catchAsync(
     });
   }
 );
+
+const deleteTargetReferBonusData = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    const result = await targetReferBonusService.deleteTargetReferBonusData(
+      user as IAuthUser,
+      id
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Deleted!",
+      data: result,
+    });
+  }
+);
 export const targetReferBonusController = {
   insertInToDB,
   getAllFromDB,
   claimTargetReferBonus,
   getMyReferClaimedData,
+  deleteTargetReferBonusData,
 };

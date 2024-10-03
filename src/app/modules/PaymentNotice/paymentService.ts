@@ -3,14 +3,7 @@ import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import { prisma } from "../../../shared/prisma";
 import { IAuthUser } from "../../interfaces/auth";
 
-const insertInToDB = async (
-  user: IAuthUser,
-  payload: {
-    depositFirstPageNotice: string;
-    depositSecondPageNotice: string;
-    withdrawPageNotice: string;
-  }
-) => {
+const insertInToDB = async (user: IAuthUser, payload: any) => {
   await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
 
   const noticeData = await prisma.paymentNotices.findFirst();

@@ -33,4 +33,10 @@ router.post(
   auth(UserRole.APP_USER),
   targetReferBonusController.claimTargetReferBonus
 );
+
+router.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
+  targetReferBonusController.deleteTargetReferBonusData
+);
 export const TargetReferBonusRoute = router;

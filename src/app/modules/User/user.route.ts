@@ -32,7 +32,7 @@ router.post(
 
 router.post(
   "/create-admin",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
+  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DEVELOPER),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.createAdmin.parse(req.body);
     return userController.createAdmin(req, res, next);

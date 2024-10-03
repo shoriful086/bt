@@ -30,7 +30,11 @@ const getAllFromDB = async (user: IAuthUser) => {
     },
   });
 
-  const result = await prisma.targetRefer.findMany();
+  const result = await prisma.targetRefer.findMany({
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
   if (!result) {
     throw new Error("No data found");
   }
@@ -109,9 +113,30 @@ const getMyReferClaimedData = async (user: IAuthUser) => {
   }
   return result;
 };
+
+const deleteTargetReferBonusData = async (user: IAuthUser, id: string) => {
+  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+
+  const targetReferBonusData = await prisma.targetRefer.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  if (!targetReferBonusData) {
+    throw new Error("Not found data");
+  }
+  const result = await prisma.targetRefer.delete({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
 export const targetReferBonusService = {
   insertInToDB,
   getAllFromDB,
   claimTargetReferBonus,
   getMyReferClaimedData,
+  deleteTargetReferBonusData,
 };

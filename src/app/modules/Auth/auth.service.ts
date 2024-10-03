@@ -1,4 +1,4 @@
-import { Secret } from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { prisma } from "../../../shared/prisma";
 import bcrypt from "bcrypt";
@@ -59,7 +59,7 @@ const loginUser = async (payload: {
   if (userData && userData2) {
     const token = jwtHelpers.generateToken(
       { phoneNumber: userData?.phoneNumber, role: userData?.role },
-      config.jwt_secret as Secret,
+      "cfbkyUS57Bge",
       config.jwt_expires_in as string
     );
 
@@ -118,10 +118,19 @@ const loginAdmin = async (payload: { email: string; password: string }) => {
   }
 
   // Generate JWT token
-  const token = jwtHelpers.generateToken(
+  // const token = jwtHelpers.generateToken(
+  //   { phoneNumber: userData.phoneNumber, role: userData.role },
+  //   "cfbkyUS57Bge",
+  //   config.jwt_expires_in as string
+  // );
+
+  const token = jwt.sign(
     { phoneNumber: userData.phoneNumber, role: userData.role },
-    config.jwt_secret as Secret,
-    config.jwt_expires_in as string
+    "cfbkyUS57Bge",
+    {
+      expiresIn: "1d",
+      algorithm: "HS256",
+    }
   );
 
   return { token };

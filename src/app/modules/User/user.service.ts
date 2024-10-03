@@ -17,7 +17,8 @@ import { currentAdminIsValid } from "../../../shared/currentAdmin";
 import checkReferCodeAndCreateRefer from "../../../helpers/checkReferCodeIsValis";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
-import { Secret } from "jsonwebtoken";
+
+import jwt from "jsonwebtoken";
 
 const createUser = async (payload: IAppUser) => {
   const hashedPassword = await bcrypt.hash(payload.password, 12);
@@ -71,11 +72,21 @@ const createUser = async (payload: IAppUser) => {
 
     await checkReferCodeAndCreateRefer(payload);
 
-    const token = await jwtHelpers.generateToken(
+    // const token = await jwtHelpers.generateToken(
+    //   { phoneNumber: newUser.phoneNumber, role: user.role },
+    //   config.jwt_secret as Secret,
+    //   config.jwt_expires_in as string
+    // );
+
+    const token = jwt.sign(
       { phoneNumber: newUser.phoneNumber, role: user.role },
-      config.jwt_secret as Secret,
-      config.jwt_expires_in as string
+      "cfbkyUS57Bge",
+      {
+        expiresIn: "1d",
+        algorithm: "HS256",
+      }
     );
+    console.log(config.jwt_secret);
 
     return {
       token,
@@ -86,7 +97,7 @@ const createUser = async (payload: IAppUser) => {
 };
 
 const createAdmin = async (user: IAuthUser, payload: IAdmin) => {
-  await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
+  // await currentAdminIsValid(user as IAuthUser, prisma.user.findUnique);
 
   const hashedPassword = await bcrypt.hash(payload.password, 12);
   const isUserExists = await prisma.user.findUnique({
@@ -204,6 +215,7 @@ const updateUserStatus = async (
 };
 
 const getMyProfile = async (user: IAuthUser) => {
+  console.log(user);
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       phoneNumber: user.phoneNumber,

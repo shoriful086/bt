@@ -1,4 +1,4 @@
-import { Secret } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import config from "../../config";
 import { jwtHelpers } from "../../helpers/jwtHelpers";
 import { NextFunction, Request, Response } from "express";
@@ -12,18 +12,15 @@ export const auth = (...roles: string[]) => {
   ) => {
     try {
       const token = req.headers.authorization;
+      console.log(token);
       if (!token) {
         throw new Error("You're not authorized");
       }
 
-      const verifyUser = jwtHelpers.verifyJwtToken(
-        token,
-        config.jwt_secret as Secret
-      );
+      const verifyUser = jwt.verify(token, "cfbkyUS57Bge") as any;
+      req.user = verifyUser;
 
-      req.user = verifyUser.payload;
-
-      if (roles.length && !roles.includes(verifyUser.payload.role)) {
+      if (roles?.length && !roles.includes(verifyUser?.role)) {
         throw new Error("Forbidden");
       }
       next();
